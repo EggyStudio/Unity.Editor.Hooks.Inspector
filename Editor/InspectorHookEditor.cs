@@ -33,6 +33,8 @@ namespace UnityEssentials
             InspectorHookUtilities.DrawStaticFields(target.GetType());
             InspectorHookUtilities.IterateMethods(InspectorHook.InvokeProcessMethod);
 
+            InspectorHook.InvokeAfterInspectorGUI();
+
             if (EditorGUI.EndChangeCheck())
             {
                 InspectorHook.InvokePreProcess();

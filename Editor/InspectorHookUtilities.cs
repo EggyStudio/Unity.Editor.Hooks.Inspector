@@ -39,7 +39,7 @@ namespace UnityEssentials
             if (!InspectorHook.Initialized)
                 return;
 
-            var bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly;
+            var bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
             var methods = type.GetMethods(bindingFlags);
             foreach (var method in methods)
                 onProcessMethod(method);

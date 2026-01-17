@@ -65,6 +65,7 @@ namespace UnityEssentials
         private static List<HookMethodEntry> s_onProcessMethod = new();
         private static List<HookEntry> s_onPreProcess = new();
         private static List<HookEntry> s_onPostProcess = new();
+        private static List<HookEntry> s_onAfterInspectorGUI = new();
 
         private static HashSet<string> s_disabledProperties = new();
         private static HashSet<string> s_handledProperties = new();
@@ -191,6 +192,12 @@ namespace UnityEssentials
             s_onPreProcess.Sort((a, b) => b.Priority.CompareTo(a.Priority));
         }
 
+        public static void AddAfterInspectorGUI(Action hook, int priority = 0)
+        {
+            s_onAfterInspectorGUI.Add(new() { Hook = hook, Priority = priority });
+            s_onAfterInspectorGUI.Sort((a, b) => b.Priority.CompareTo(a.Priority));
+        }
+
         public static void InvokeInitialization(Editor editor)
         {
             Target = editor.target;
@@ -198,7 +205,9 @@ namespace UnityEssentials
             SerializedObject = editor.serializedObject;
             Initialized = true;
 
-            foreach (var entry in s_onInitialization)
+            // Snapshot to protect against hooks being added/removed during invocation.
+            var snapshot = s_onInitialization.ToArray();
+            foreach (var entry in snapshot)
                 entry.Hook();
         }
 
@@ -206,27 +215,36 @@ namespace UnityEssentials
         {
             Target = InspectorHookUtilities.GetTargetObjectOfProperty(serializedProperty) as Object;
 
-            foreach (var entry in s_onProcessProperty)
+            var snapshot = s_onProcessProperty.ToArray();
+            foreach (var entry in snapshot)
                 entry.Hook(serializedProperty);
         }
 
         public static void InvokeProcessMethod(MethodInfo methodInfo)
         {
-            foreach (var entry in s_onProcessMethod)
+            var snapshot = s_onProcessMethod.ToArray();
+            foreach (var entry in snapshot)
                 entry.Hook(methodInfo);
         }
 
         public static void InvokePostProcess()
         {
-            //foreach (var script in Scripts)
-            //Debug.Log($"Post-processing MonoBehaviour: {script.GetType().Name}");
-            foreach (var entry in s_onPostProcess)
+            var snapshot = s_onPostProcess.ToArray();
+            foreach (var entry in snapshot)
                 entry.Hook();
         }
 
         public static void InvokePreProcess()
         {
-            foreach (var entry in s_onPreProcess)
+            var snapshot = s_onPreProcess.ToArray();
+            foreach (var entry in snapshot)
+                entry.Hook();
+        }
+
+        public static void InvokeAfterInspectorGUI()
+        {
+            var snapshot = s_onAfterInspectorGUI.ToArray();
+            foreach (var entry in snapshot)
                 entry.Hook();
         }
 
