@@ -1,5 +1,5 @@
 {
-    "name": "UnityEssentials.InspectorHook.Editor",
+    "name": "UnityEssentials.Editor.Hooks.Inspector.Editor",
     "rootNamespace": "UnityEssentials",
     "references": [],
     "includePlatforms": [],
